@@ -2,6 +2,7 @@ Require Import Kami.AllNotations.
 Require Import StdLibKami.RegArray.Ifc.
 Require Import StdLibKami.Fifo.Ifc.
 Require Import StdLibKami.Fifo.Impl.
+Require Import String.
 
 Section DoubleFifo.
   

@@ -12,7 +12,7 @@ Section Impl.
   Section withTy.
     Context (ty: Kind -> Type).
     
-    Local Definition pollRuleGenerator (clientCallback: forall {ty}, ty respK -> ActionT ty Void) (dev: Fin.t numDevices): ActionT ty Void :=
+    Local Definition pollRuleGenerator (clientCallback: forall {ty}, ty respK -> ActionT ty Void) (dev: Fin numDevices): ActionT ty Void :=
       Read alreadyRoutedReg: Bool <- routedReg;
       If !#alreadyRoutedReg then (
         LETA resp: Maybe respK <- (nth_Fin devices dev).(devicePoll);

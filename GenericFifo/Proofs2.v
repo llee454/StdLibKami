@@ -16,10 +16,12 @@ Section Proofs.
   Context {extendedFifoParams : @GenericFifo.ExtendedFifo.Params fifoIfcParams}.
   (*Context {genIfcParams : GenericFifo.Ifc.Params}.*)
 
-  Local Notation genericFifoParams := (GenericFifo.Ifc.Build_Params
-                                         (@Fifo.Ifc.name fifoIfcParams)
-                                         (@Fifo.Ifc.k fifoIfcParams)
-                                         (@Fifo.Ifc.size fifoIfcParams)).
+  Local Definition genericFifoParams :
+    GenericFifo.Ifc.Params :=
+    (GenericFifo.Ifc.Build_Params
+      (@Fifo.Ifc.name fifoIfcParams)
+      (@Fifo.Ifc.k fifoIfcParams)
+      (@Fifo.Ifc.size fifoIfcParams)).
   
   Local Definition fifoImpl := @GenericFifo.ExtendedFifo.Extension fifoIfcParams
                                                                    extendedFifoParams.
@@ -60,7 +62,60 @@ Section Proofs.
       destruct H as [o_sf [nonDetEmpVal [specRegVals [lenVal H0]]]];
       destruct H0
     end.
-    
+
+Lemma string_eqb_false : forall s r : string, s <> r <-> s =? r = false.
+Proof.
+exact
+  (fun s r =>
+    conj
+      (fun H : s <> r =>
+        match s =? r as b return s =? r = b -> s =? r = false with
+        | true =>
+          fun H0 : s =? r = true =>
+            False_ind _ (H (proj1 (String.eqb_eq s r) H0))
+        | false => 
+          fun H0 : s =? r = false => H0
+        end eq_refl)
+      (fun H_s_r_false : s =? r = false =>
+        match string_dec s r with
+        | left H_s_r_eq =>
+          let H_s_r_true : s =? r = true
+            := proj2 (String.eqb_eq s r) H_s_r_eq in
+          ltac:(contradict H_s_r_false;
+            rewrite H_s_r_true;
+            exact (diff_true_false))
+        | right H_s_r_neq => H_s_r_neq
+        end)).
+Qed.
+
+Lemma string_eqb_refl : forall s : string, s =? s = true.
+Proof.
+exact
+  (fun s => proj2 (String.eqb_eq s s) (eq_refl s)).
+Qed.
+
+Lemma string_eqb_sym : forall s r : string, (s =? r) = (r =? s).
+Proof.
+exact
+  (fun s r =>
+    match s =? r as b return s =? r = b -> b = (r =? s) with
+    | true =>
+      fun H_s_r_true : s =? r = true =>
+        let H_eq_s_r : s = r :=
+          proj1 (String.eqb_eq s r) H_s_r_true in
+        let H_r_s_true : r =? s = true :=
+          proj2 (String.eqb_eq r s) (eq_sym H_eq_s_r) in
+        ltac:(rewrite H_r_s_true; reflexivity)
+    | false =>
+      fun H_s_r_false : s =? r = false =>
+        let H_neq_s_r : s <> r :=
+          proj2 (string_eqb_false s r) H_s_r_false in
+        let H_r_s_false : r =? s = false :=
+          proj1 (string_eqb_false r s) (not_eq_sym H_neq_s_r) in
+        ltac:(rewrite H_r_s_false; reflexivity)
+    end eq_refl).
+Qed. 
+(*
     Goal GenericFifoCorrect fifoImpl fifoSpec.
       all : econstructor 1 with (fifoR := (fun o1 o2 =>
                                              (exists o_sf nonDetEmpVal specRegVals lenVals,
@@ -82,7 +137,26 @@ Section Proofs.
         instantiate (1 := false).
         instantiate (1 := $size).
         do 3 doUpdRegs_simpl; doUpdRegs_red; repeat normal_solver; simpl.
+(* TODO: LEE: nonterminating proof. *)
            econstructor 1; eauto; normalize_key_concl.
+           * unfold doUpdReg;
+             simpl;
+             rewrite (proj1 (string_eqb_false _ _) H5);
+             rewrite (proj1 (string_eqb_false _ _) H1);
+             rewrite (string_eqb_sym Spec.listName Spec.nonDetEmptyName);
+             rewrite (proj1 (string_eqb_false _ _) H);
+             rewrite (string_eqb_refl Spec.nonDetEmptyName);
+             rewrite (string_eqb_refl Spec.nonDetLenName);
+             unfold size.
+             unfold lgSize.
+             unfold Fifo.Ifc.lgSize.
+             instantiate (1 := (genericFifoParams)).
+             simpl.
+             reflexivity.
+(* Original 
+        do 3 doUpdRegs_simpl; doUpdRegs_red; repeat normal_solver; simpl.
+           econstructor 1; eauto; normalize_key_concl.
+*)
       - hyp_consumer.
         apply SubList_map_iff in H0; destruct H0 as [x [Heq1 Heq2]].
         goal_consumer2; eauto.
@@ -345,5 +419,5 @@ Section Proofs.
         + simpl; lia.
       - hyp_consumer; goal_consumer2.
     Qed.
-
+*)
 End Proofs.

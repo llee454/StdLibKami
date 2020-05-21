@@ -66,16 +66,16 @@ Section Ifc.
          regFiles : list RegFileBase;
 
          sendReq (send : forall {ty}, ty OutReq -> ActionT ty (Maybe immResK))
-         : forall (clientId : Fin.t numClients) {ty},
+         : forall (clientId : Fin numClients) {ty},
              ty (ClientReq (clientTagSz (nth_Fin (clientList clients) clientId))) -> ActionT ty (Maybe immResK);
 
          hasResps (first: forall {ty}, ActionT ty (Maybe InRes))
-         : forall (clientId: Fin.t numClients) {ty},
+         : forall (clientId: Fin numClients) {ty},
              ActionT ty Bool;
 
          getResps (first: forall {ty}, ActionT ty (Maybe InRes))
                   (deq: forall {ty}, ActionT ty Bool)
-         : forall (clientId: Fin.t numClients) {ty},
+         : forall (clientId: Fin numClients) {ty},
              ActionT ty (Maybe (clientResK (nth_Fin (clientList clients) clientId)));
 
          resetRule : forall {ty}, ActionT ty Void;

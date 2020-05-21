@@ -4,14 +4,14 @@ Require Import Kami.Utila.
 Local Open Scope kami_expr.
 Local Open Scope kami_action.
 
-Definition Struct_RegReads' ty n (k: Fin.t n -> Kind) (s: Fin.t n -> string): ActionT ty (Struct k s) :=
+Definition Struct_RegReads' ty n (k: Fin n -> Kind) (s: Fin n -> string): ActionT ty (Struct k s) :=
   fold_left (fun acc i =>
                LETA tmp <- acc;
                  Read val: (k i) <- (s i);
                  Ret (UpdateStruct #tmp i #val))%kami_action
             (getFins n) (Ret (Const ty (getDefaultConst (Struct k s)))).
 
-Definition Struct_RegWrites' ty n (k: Fin.t n -> Kind) (s: Fin.t n -> string) (e: Struct k s @# ty): ActionT ty Void :=
+Definition Struct_RegWrites' ty n (k: Fin n -> Kind) (s: Fin n -> string) (e: Struct k s @# ty): ActionT ty Void :=
   fold_left (fun acc i =>
                LETA _ <- acc;
                  Write (s i) : (k i) <- ReadStruct e i ;
@@ -20,7 +20,7 @@ Definition Struct_RegWrites' ty n (k: Fin.t n -> Kind) (s: Fin.t n -> string) (e
 
 Definition Struct_RegReads ty k: ActionT ty k :=
   match k return ActionT ty k with
-  | Struct _ ki si => Struct_RegReads' ty ki si
+  | Struct n ki si => Struct_RegReads' ty n ki si
   | Bool => Ret (Const ty (getDefaultConst Bool))
   | Bit n => Ret (Const ty (getDefaultConst (Bit n)))
   | Array n k => Ret (Const ty (getDefaultConst (Array n k)))
@@ -34,7 +34,7 @@ Definition Struct_RegWrites ty k (e: k @# ty): ActionT ty Void:=
   | Array n k => fun _ => Retv
   end e.
 
-Definition MayStruct_RegReads' ty n (s: Fin.t n -> string) (vals: Fin.t n -> {k: Kind & option (ConstT k)}):
+Definition MayStruct_RegReads' ty n (s: Fin n -> string) (vals: Fin n -> {k: Kind & option (ConstT k)}):
   ActionT ty (Struct (fun i => projT1 (vals i)) s) :=
   fold_left (fun acc i =>
                LETA tmp <- acc;
@@ -48,7 +48,7 @@ Definition MayStruct_RegReads' ty n (s: Fin.t n -> string) (vals: Fin.t n -> {k:
                  end)%kami_action
             (getFins n) (Ret (Const ty (getDefaultConst (Struct _ _)))).
   
-Definition MayStruct_RegWrites' ty n (s: Fin.t n -> string) (vals: Fin.t n -> {k: Kind & option (ConstT k)})
+Definition MayStruct_RegWrites' ty n (s: Fin n -> string) (vals: Fin n -> {k: Kind & option (ConstT k)})
   (e: Struct (fun i => projT1 (vals i)) s @# ty):
   ActionT ty Void :=
   fold_left (fun acc i =>
@@ -71,8 +71,8 @@ Notation "name ::# ty #:: val " := (name%string, existT (fun k => option (ConstT
 
 Delimit Scope kami_maystruct_scope with kami_maystruct.
 
-Record MayStruct n := { vals  : Fin.t n -> {k: Kind & option (ConstT k)} ;
-                        names : Fin.t n -> string }.
+Record MayStruct n := { vals  : Fin n -> {k: Kind & option (ConstT k)} ;
+                        names : Fin n -> string }.
 
 Definition getMayStruct ls: MayStruct (length ls) :=
   {| vals  := fun i => snd (nth_Fin ls i) ;
@@ -82,14 +82,14 @@ Definition getMayStruct ls: MayStruct (length ls) :=
 Notation "'MAYSTRUCT' { s1 ; .. ; sN }" :=
   (getMayStruct (cons s1%kami_maystruct .. (cons sN%kami_maystruct nil) ..)).
 
-Definition MayStruct_RegReads ty n (v: MayStruct n) := MayStruct_RegReads' ty (names v) (vals v).
+Definition MayStruct_RegReads ty n (v: MayStruct n) := MayStruct_RegReads' ty n (names v) (vals v).
 Definition MayStruct_RegWrites (ty: Kind -> Type) n (v: MayStruct n) e := MayStruct_RegWrites' (ty := ty) (s := names v) (vals v) e.
 
 
 
 
 
-(* Definition MayStruct_RegReads' ty n (k: Fin.t n -> Kind) (s: Fin.t n -> string) (vals: forall i, option (ConstT (k i))): *)
+(* Definition MayStruct_RegReads' ty n (k: Fin n -> Kind) (s: Fin n -> string) (vals: forall i, option (ConstT (k i))): *)
 (*   ActionT ty (Struct k s) := *)
 (*   fold_left (fun acc i => *)
 (*                LETA tmp <- acc; *)
@@ -103,7 +103,7 @@ Definition MayStruct_RegWrites (ty: Kind -> Type) n (v: MayStruct n) e := MayStr
 (*                  end)%kami_action *)
 (*             (getFins n) (Ret (Const ty (getDefaultConst (Struct _ _)))). *)
   
-(* Definition MayStruct_RegWrites' ty n (k: Fin.t n -> Kind) (s: Fin.t n -> string) (vals: forall i, option (ConstT (k i))) *)
+(* Definition MayStruct_RegWrites' ty n (k: Fin n -> Kind) (s: Fin n -> string) (vals: forall i, option (ConstT (k i))) *)
 (*   (e: Struct k s @# ty): *)
 (*   ActionT ty Void := *)
 (*   fold_left (fun acc i => *)

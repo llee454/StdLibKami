@@ -12,7 +12,7 @@ Section Impl.
 
   Local Definition sendReq
     (send: forall {ty}, ty (OutReq clients) -> ActionT ty (Maybe immResK))
-    (clientId : Fin.t (numClients clients))
+    (clientId : Fin (numClients clients))
     (ty : Kind -> Type)
     (clientReq : ty (ClientReq (clientTagSz (nth_Fin (clientList clients) clientId))))
     :  ActionT ty (Maybe immResK)
@@ -37,7 +37,7 @@ Section Impl.
 
   Local Definition hasResps
         (first: forall {ty}, ActionT ty (Maybe (InRes clients)))
-        (clientId: Fin.t (numClients clients))
+        (clientId: Fin (numClients clients))
         (ty: Kind -> Type)
     : ActionT ty Bool
     := LETA res <- first;
@@ -47,7 +47,7 @@ Section Impl.
   Local Definition getResps
         (first: forall {ty}, ActionT ty (Maybe (InRes clients)))
         (deq: forall {ty}, ActionT ty Bool)
-        (clientId: Fin.t (numClients clients))
+        (clientId: Fin (numClients clients))
         (ty: Kind -> Type)
     : ActionT ty (Maybe (clientResK (nth_Fin (clientList clients) clientId)))
     := LETA res <- first;

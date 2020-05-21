@@ -183,7 +183,7 @@ Local Definition impl_write k size size' (writeRq : type (WriteRq (Nat.log2_up s
                  (tag (map f (seq O size))) as vals; Retv)%kami_action.
 
 Lemma MaybeReadevalCorrect k :
-  forall (x y : Expr type (SyntaxKind (Maybe k))) (i : t 2),
+  forall (x y : Expr type (SyntaxKind (Maybe k))) (i : Fin 2),
          evalExpr x = evalExpr y ->
          evalExpr (ReadStruct x i) = evalExpr (ReadStruct y i).
 Proof.
@@ -1269,7 +1269,7 @@ Section Proofs.
 
   Local Definition f := (fun i => name ++ "_" ++ natToHexStr i)%string.
 
-  Record myRegArrayR (LocalRegs : RegsT) (arrayVal : Fin.t size -> type k)
+  Record myRegArrayR (LocalRegs : RegsT) (arrayVal : Fin size -> type k)
          (o_i o_s : RegsT) : Prop :=
     {
       (* LocalRegs : RegsT; *)
@@ -1389,6 +1389,7 @@ Section Proofs.
              destruct weq; simpl; auto.
              exfalso.
              specialize (fin_to_nat_bound x) as P1.
+             unfold F1 in l.
              rewrite e, wordToNat_natToWord_eqn, Nat.mod_small in l; try lia.
              apply (lt_le_trans _ size); auto.
              apply log2_up_pow2.

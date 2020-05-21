@@ -295,7 +295,7 @@ Section Granule.
 
     Definition mayStructKind (n : nat) (x : MayStruct n)
       :  Kind
-      := Struct (fun i : Fin.t n => projT1 (vals x i)) (names x).
+      := Struct (fun i : Fin n => projT1 (vals x i)) (names x).
 
     Variable ContextCodeWidth : nat.
     Definition ContextCodeT := Bit ContextCodeWidth.

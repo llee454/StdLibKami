@@ -111,11 +111,11 @@ Section Proofs.
 
   Section SizeGT1.
     Variable Hsize1 : size <> 1.
-    Definition listInSpec (len start : nat) (arr : Fin.t size -> type k) :=
+    Definition listInSpec (len start : nat) (arr : Fin size -> type k) :=
       firstn len (rotateList start (convertToList arr)).
 
     Record myFifoSpecR (implRegs specRegs regArray : RegsT) (queueLen : Z)
-           (enqVal deqVal : word (Fifo.Ifc.lgSize + 1)) (arrayVal : Fin.t size -> type k)
+           (enqVal deqVal : word (Fifo.Ifc.lgSize + 1)) (arrayVal : Fin size -> type k)
            (o_i o_s : RegsT) : Prop :=
     {
       HqueueLen : queueLen = wordVal _ (enqVal ^- deqVal);

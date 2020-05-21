@@ -1,6 +1,7 @@
 Require Import Kami.AllNotations.
 Require Import StdLibKami.GenericFifo.Ifc.
 Require Import StdLibKami.GenericFifo.Impl.
+Require Import String.
 
 Section DoubleFifo.
   

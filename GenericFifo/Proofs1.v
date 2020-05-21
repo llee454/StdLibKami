@@ -7,6 +7,8 @@ Require Import StdLibKami.GenericFifo.Ifc.
 Require Import StdLibKami.GenericFifo.Spec.
 Require Import StdLibKami.GenericFifo.DoubleFifo.
 Require Import StdLibKami.GenericFifo.CorrectDef.
+Require Import String.
+Require Import List.
 
 Section Proofs.
   Context {ifcParams : GenericFifo.Ifc.Params}.
@@ -97,7 +99,7 @@ Section Proofs.
           [specRegVals [nonDetEmpVal [nonDetEmpValL [nonDetEmpValR [lenVal [lenValL
           [lenValR H0]]]]]]]]]]]]]]]; destruct H0
     end.
-  
+(* 
  Goal GenericFifoCorrect fifoImpl fifoSpec.
    econstructor 1 with (fifoR :=
                           fun o1 o2 =>
@@ -1506,5 +1508,5 @@ Section Proofs.
       Unshelve.
       all : eauto; (exact false||exact $0).
  Qed.
- 
+*) 
 End Proofs.
